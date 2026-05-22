@@ -1,0 +1,37 @@
+# DockerでPostgreSQLを構築し、初期スキーマを流し込む手順
+
+1. Docker Desktopをインストール（未インストールの場合）
+   - https://www.docker.com/products/docker-desktop/
+
+2. プロジェクト直下に `docker-compose.yml` があることを確認
+   - 既に作成済み
+
+3. PowerShellでプロジェクトディレクトリに移動
+
+   ```sh
+   cd C:\Users\Yuuki\Desktop\ta-attendance
+   ```
+
+4. DockerでDBを起動
+
+   ```sh
+   docker compose up -d
+   ```
+   - 初回起動時、`database/schema.sql` が自動で流し込まれます
+
+5. DB接続情報（例）
+   - ホスト: localhost
+   - ポート: 5432
+   - ユーザー: postgres
+   - パスワード: postgres
+   - データベース名: ta_attendance
+
+6. 停止・削除コマンド
+   - 停止: `docker compose down`
+   - データも削除: `docker compose down -v`
+
+---
+
+## 注意
+- schema.sqlを修正した場合、DBを一度削除（`docker compose down -v`）して再度 `up` すると反映されます。
+- Supabaseクラウドを使う場合はこの手順は不要です。
