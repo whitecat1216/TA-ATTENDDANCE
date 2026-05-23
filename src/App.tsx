@@ -19,7 +19,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { fetchSession } = useAuthStore()
+  const { user, loading, fetchSession } = useAuthStore()
 
   useEffect(() => {
     fetchSession()
@@ -28,7 +28,16 @@ export default function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={
+            loading
+              ? <div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">読み込み中...</div>
+              : user
+                ? <Navigate to="/" replace />
+                : <Login />
+          }
+        />
         <Route
           path="/"
           element={

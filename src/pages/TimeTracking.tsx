@@ -2,11 +2,52 @@ import { useEffect, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { supabase } from '@/lib/supabase'
-import { useAuthStore } from '@/store/authStore'
+import { MOCK_USER_STORAGE_KEY, useAuthStore } from '@/store/authStore'
 import type { AttendanceRecord } from '@/types'
 
+const MOCK_ATTENDANCE_STORAGE_PREFIX = 'ta_mock_attendance_record:'
+
+const createEmptyMockRecord = (employeeId: string, date: string): AttendanceRecord => {
+  const now = new Date().toISOString()
+
+  return {
+    id: `mock-${employeeId}-${date}`,
+    employee_id: employeeId,
+    date,
+    clock_in: null,
+    clock_out: null,
+    break_minutes: 0,
+    overtime_minutes: 0,
+    status: 'present',
+    note: '',
+    is_modified: false,
+    created_at: now,
+    updated_at: now,
+  }
+}
+
+const getMockAttendanceStorageKey = (date: string) => `${MOCK_ATTENDANCE_STORAGE_PREFIX}${date}`
+
+const loadMockRecord = (date: string): AttendanceRecord | null => {
+  const raw = localStorage.getItem(getMockAttendanceStorageKey(date))
+  if (!raw) return null
+
+  try {
+    return JSON.parse(raw) as AttendanceRecord
+  } catch {
+    localStorage.removeItem(getMockAttendanceStorageKey(date))
+    return null
+  }
+}
+
+const saveMockRecord = (date: string, record: AttendanceRecord) => {
+  localStorage.setItem(getMockAttendanceStorageKey(date), JSON.stringify(record))
+}
+
+const isMockSessionActive = () => Boolean(localStorage.getItem(MOCK_USER_STORAGE_KEY))
+
 export default function TimeTracking() {
-  const { user } = useAuthStore()
+  const { user, isMockUser } = useAuthStore()
   const today = format(new Date(), 'yyyy-MM-dd')
   const [record, setRecord] = useState<AttendanceRecord | null>(null)
   const [loading, setLoading] = useState(true)
@@ -14,7 +55,17 @@ export default function TimeTracking() {
 
   // 今日の打刻レコードを取得
   const fetchToday = async () => {
-    if (!user) return
+    if (!user) {
+      setLoading(false)
+      return
+    }
+
+    if (isMockUser || isMockSessionActive()) {
+      setRecord(loadMockRecord(today))
+      setLoading(false)
+      return
+    }
+
     const { data } = await supabase
       .from('attendance_records')
       .select('*')
@@ -30,6 +81,21 @@ export default function TimeTracking() {
   // 出勤打刻
   const clockIn = async () => {
     if (!user) return
+
+    if (isMockUser || isMockSessionActive()) {
+      setActionLoading(true)
+      const nextRecord: AttendanceRecord = {
+        ...(record ?? createEmptyMockRecord(user.id, today)),
+        clock_in: new Date().toISOString(),
+        status: 'present',
+        updated_at: new Date().toISOString(),
+      }
+      saveMockRecord(today, nextRecord)
+      setRecord(nextRecord)
+      setActionLoading(false)
+      return
+    }
+
     setActionLoading(true)
     const { data, error } = await supabase
       .from('attendance_records')
@@ -52,6 +118,20 @@ export default function TimeTracking() {
   // 退勤打刻
   const clockOut = async () => {
     if (!record) return
+
+    if (isMockUser || isMockSessionActive()) {
+      setActionLoading(true)
+      const nextRecord: AttendanceRecord = {
+        ...record,
+        clock_out: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      saveMockRecord(today, nextRecord)
+      setRecord(nextRecord)
+      setActionLoading(false)
+      return
+    }
+
     setActionLoading(true)
     const { data, error } = await supabase
       .from('attendance_records')
@@ -66,31 +146,53 @@ export default function TimeTracking() {
   const formatTime = (iso: string | null) =>
     iso ? format(parseISO(iso), 'HH:mm', { locale: ja }) : '--:--'
 
+  const workStatus = loading
+    ? '読込中'
+    : !record?.clock_in
+      ? '未出勤'
+      : record.clock_out
+        ? '退勤'
+        : '出勤中'
+
+  const workStatusClass = loading
+    ? 'bg-gray-100 text-gray-600'
+    : !record?.clock_in
+      ? 'bg-gray-100 text-gray-600'
+      : record.clock_out
+        ? 'bg-blue-100 text-blue-700'
+        : 'bg-green-100 text-green-700'
+
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-3xl space-y-6">
       {/* 打刻カード */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div className="text-sm text-gray-500 mb-1">
           {format(new Date(), 'yyyy年M月d日(E)', { locale: ja })}
         </div>
-        <h2 className="text-xl font-bold text-gray-800 mb-6">本日の打刻</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-6">本日の打刻</h2>
 
-        <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="mb-6 flex justify-center">
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${workStatusClass}`}>
+            勤務状態: {workStatus}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
           <div className="text-center">
             <div className="text-xs text-gray-500 mb-1">出勤時刻</div>
-            <div className="text-4xl font-bold text-gray-800 tabular-nums">
+            <div className="text-3xl sm:text-4xl font-bold text-gray-800 tabular-nums">
               {loading ? '--:--' : formatTime(record?.clock_in ?? null)}
             </div>
           </div>
           <div className="text-center">
             <div className="text-xs text-gray-500 mb-1">退勤時刻</div>
-            <div className="text-4xl font-bold text-gray-800 tabular-nums">
+            <div className="text-3xl sm:text-4xl font-bold text-gray-800 tabular-nums">
               {loading ? '--:--' : formatTime(record?.clock_out ?? null)}
             </div>
           </div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={clockIn}
             disabled={actionLoading || !!record?.clock_in}
@@ -109,7 +211,7 @@ export default function TimeTracking() {
       </div>
 
       {/* 修正フォーム */}
-      <AttendanceEditForm record={record} onUpdated={setRecord} />
+      <AttendanceEditForm record={record} onUpdated={setRecord} isMockUser={isMockUser} />
     </div>
   )
 }
@@ -118,9 +220,11 @@ export default function TimeTracking() {
 function AttendanceEditForm({
   record,
   onUpdated,
+  isMockUser,
 }: {
   record: AttendanceRecord | null
   onUpdated: (r: AttendanceRecord) => void
+  isMockUser: boolean
 }) {
   const [clockIn, setClockIn] = useState(record?.clock_in?.slice(11, 16) ?? '')
   const [clockOut, setClockOut] = useState(record?.clock_out?.slice(11, 16) ?? '')
@@ -139,6 +243,22 @@ function AttendanceEditForm({
     setSaving(true)
     const date = record.date
     const toISO = (t: string) => t ? `${date}T${t}:00+09:00` : null
+
+    if (isMockUser || isMockSessionActive()) {
+      const nextRecord: AttendanceRecord = {
+        ...record,
+        clock_in: toISO(clockIn),
+        clock_out: toISO(clockOut),
+        note,
+        is_modified: true,
+        updated_at: new Date().toISOString(),
+      }
+      saveMockRecord(date, nextRecord)
+      onUpdated(nextRecord)
+      setSaving(false)
+      return
+    }
+
     const { data, error } = await supabase
       .from('attendance_records')
       .update({
@@ -156,14 +276,14 @@ function AttendanceEditForm({
   }
 
   return (
-    <div className={`bg-white rounded-lg border p-6 ${record.is_modified ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'}`}>
+    <div className={`bg-white rounded-lg border p-4 sm:p-6 ${record.is_modified ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'}`}>
       <h3 className="font-semibold text-gray-700 mb-4 text-sm">
         打刻修正
         {record.is_modified && (
           <span className="ml-2 text-xs text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded">修正済</span>
         )}
       </h3>
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-xs text-gray-500 mb-1">出勤時刻</label>
           <input
@@ -192,13 +312,15 @@ function AttendanceEditForm({
           className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
         />
       </div>
-      <button
-        onClick={save}
-        disabled={saving}
-        className="bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-6 py-2 rounded transition-colors disabled:opacity-50"
-      >
-        {saving ? '保存中...' : '保存'}
-      </button>
+      <div className="flex">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-6 py-2 rounded transition-colors disabled:opacity-50"
+        >
+          {saving ? '保存中...' : '保存'}
+        </button>
+      </div>
     </div>
   )
 }

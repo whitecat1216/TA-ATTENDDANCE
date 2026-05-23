@@ -26,6 +26,422 @@
 
 【履歴】
 
+日付: 2026-05-23
+依頼者: ユーザー
+テーマ: `.gitignore` の環境変数ルール確認と更新
+
+1) 依頼内容
+- `.gitignore` に環境変数などを追加しなくて良いか確認したい
+
+2) 要件整理
+- ローカル環境変数ファイルを誤コミットしないこと
+- `.env.example` 系の共有用ファイルは引き続き追跡すること
+
+3) 実施内容
+- `.gitignore` に `.env.*` を追加して環境変数ファイルを包括除外
+- `!.env.example` と `!mobile/.env.example` を追加してサンプルファイルを追跡対象に維持
+
+4) 変更ファイル
+- .gitignore
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `.env` / `.env.*` は除外される設定
+- `.env.example` / `mobile/.env.example` は除外されない設定
+
+6) 未対応/次対応
+- 必要に応じて将来追加する環境変数ファイル命名を `.env.*` へ統一する
+
+----------------------------------------
+
+日付: 2026-05-23
+依頼者: ユーザー
+テーマ: Windows 手順書のファイル名変更
+
+1) 依頼内容
+- `docs/setup/環境構築手順書.md` のファイル名も変更したい
+
+2) 要件整理
+- Windows 手順書を分かりやすい命名へ変更する
+- 既存ドキュメントでの参照ズレを最小化する
+
+3) 実施内容
+- `docs/setup/環境構築手順書.md` を `docs/setup/SETUP_WINDOWS.md` へリネーム
+- `docs/ai/plan.md` の参照ファイル名を更新
+
+4) 変更ファイル
+- docs/setup/SETUP_WINDOWS.md
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `docs/setup/SETUP_WINDOWS.md` が存在
+- `docs/setup/環境構築手順書.md` が存在しないことを確認
+
+6) 未対応/次対応
+- 必要に応じて README などの導線に Windows 手順へのリンクを追加する
+
+----------------------------------------
+
+日付: 2026-05-23
+依頼者: ユーザー
+テーマ: Windows 環境構築手順書の拡張子変更（txt -> md）
+
+1) 依頼内容
+- `docs/setup/環境構築手順書.txt` を Windows 環境向け手順書として `.md` へ変更したい
+
+2) 要件整理
+- `.txt` を `.md` に移行する
+- 手順内容は Windows（PowerShell）向けを維持する
+- Markdown の見出し・コードブロックで可読性を上げる
+
+3) 実施内容
+- `docs/setup/環境構築手順書.txt` を `docs/setup/環境構築手順書.md` へリネーム
+- 内容を Markdown 形式に整形（見出し、手順番号、PowerShell / env コードブロック）
+- Supabase local 手順と環境変数設定例を追記整理
+
+4) 変更ファイル
+- docs/setup/環境構築手順書.md
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `docs/setup/環境構築手順書.md` が存在
+- `docs/setup/環境構築手順書.txt` が存在しないことを確認
+
+6) 未対応/次対応
+- 必要に応じて README から Windows 手順へのリンクを追加する
+
+----------------------------------------
+
+日付: 2026-05-23
+依頼者: ユーザー
+テーマ: Copilot 指示書ファイル重複の整理
+
+1) 依頼内容
+- `copilot-instructions.md` が2つあり混乱するため、AI指示書関連を整理したい
+
+2) 要件整理
+- Copilot が参照する正本を明確化する
+- 重複本文をなくして運用を単純化する
+- 既存の plan / 履歴更新ルールに従う
+
+3) 実施内容
+- 正本を `.github/copilot-instructions.md` に固定
+- ルートの `copilot-instructions.md` を重複本文から「正本への参照ガイド」へ置換
+- `docs/ai/plan.md` に今回タスクを追加し完了記録を反映
+
+4) 変更ファイル
+- copilot-instructions.md
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- 指示書本文の重複が解消され、参照先が1つに統一された
+
+6) 未対応/次対応
+- 今後の指示書更新は `.github/copilot-instructions.md` のみに集約する
+
+----------------------------------------
+
+日付: 2026-05-23
+依頼者: ユーザー
+テーマ: 打刻保存エラーと勤務状態表示の修正
+
+1) 依頼内容
+- 打刻修正フォームの保存時に `isMockUser is not defined` エラーが発生する
+- 時間表示に加えて、出勤中から退勤へ状態が分かる表示にしたい
+
+2) 要件整理
+- `TimeTracking.tsx` の `isMockUser` 参照エラーを解消する
+- 画面上に勤務状態（未出勤/出勤中/退勤）を表示する
+- 退勤ボタン押下後に勤務状態が「退勤」へ更新される
+
+3) 実施内容
+- `AttendanceEditForm` の props に `isMockUser` を追加し、親コンポーネントから受け渡すよう修正
+- 打刻カードに勤務状態バッジを追加（未出勤/出勤中/退勤/読込中）
+- 出勤・退勤の時刻状態に応じて表示が切り替わるようロジックを追加
+
+4) 変更ファイル
+- src/pages/TimeTracking.tsx
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `get_errors` で `src/pages/TimeTracking.tsx` エラーなし
+- `npm run build:vite` 成功
+
+6) 未対応/次対応
+- 実 UI で保存ボタンと退勤ボタン操作の最終確認を実施する
+
+----------------------------------------
+
+日付: 2026-05-23
+依頼者: ユーザー
+テーマ: Supabase local 接続設定を Web / mobile に反映
+
+1) 依頼内容
+- Web 側と mobile 側で Supabase local を使えるよう設定を進めたい
+
+2) 要件整理
+- `.env` に local Supabase の URL / Publishable key を設定する
+- `mobile/.env` を作成して同じく URL / Publishable key を設定する
+- Secret key をクライアント設定へ入れない
+
+3) 実施内容
+- `.env` の `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` を local 起動値へ更新
+- `mobile/.env` を新規作成し `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` を設定
+- `npm run dev:vite` で Web 起動確認（http://localhost:5173）
+
+4) 変更ファイル
+- .env
+- mobile/.env
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `.env` / `mobile/.env` の設定反映を確認
+- Secret key は未使用
+- `npm run dev:vite` で起動確認
+
+6) 未対応/次対応
+- mobile 実機接続時は `EXPO_PUBLIC_SUPABASE_URL` を Mac の LAN IP に変更して確認する
+
+----------------------------------------
+
+日付: 2026-05-22
+依頼者: ユーザー
+テーマ: Supabase ローカル構成追加と初期 migration 反映
+
+1) 依頼内容
+- Supabase ディレクトリ初期化前提の構成追加
+- `database/schema.sql` を初期 migration に変換
+- `docs/setup/SETUP_MACOS.md` へ反映
+
+2) 要件整理
+- Supabase CLI 標準構成（config / migrations / seed）を追加する
+- 現行スキーマを初期 migration として管理できる状態にする
+- macOS 開発手順を Supabase ローカル運用へ更新する
+
+3) 実施内容
+- `supabase/config.toml`、`supabase/migrations/20260522100000_initial_schema.sql`、`supabase/seed.sql` を追加
+- 既存の `database/schema.sql` 冒頭に migration 正本の参照注記を追加
+- `docs/setup/SETUP_MACOS.md` を Supabase CLI 前提の手順へ全面更新
+- `.env.example` と `mobile/.env.example` を `supabase status` ベースの設定手順へ更新
+- `package.json` に `supabase:start/stop/status/reset` を追加
+
+4) 変更ファイル
+- supabase/config.toml
+- supabase/migrations/20260522100000_initial_schema.sql
+- supabase/seed.sql
+- database/schema.sql
+- docs/setup/SETUP_MACOS.md
+- .env.example
+- mobile/.env.example
+- package.json
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- 変更ファイルにエラーなし（get_errors）
+- `npm run supabase:status` 実行時に `supabase: command not found` を確認（CLI 未導入）
+
+6) 未対応/次対応
+- 開発マシンへ Supabase CLI を導入後、`npm run supabase:start` で実起動確認を行う
+- `supabase status` の anon key を `.env` / `mobile/.env` に反映して接続確認する
+
+----------------------------------------
+
+日付: 2026-05-22
+依頼者: ユーザー
+テーマ: 暫定ログイン時に勤怠時刻が表示されない不具合修正
+
+1) 依頼内容
+- ログイン後に勤怠時刻が表示されない原因を確認し、必要なら修正したい
+
+2) 要件整理
+- 暫定ログイン `admin/password` 利用時でも当日打刻を表示できるようにする
+- 出勤、退勤、打刻修正が再読み込み後も保持されるようにする
+- 実 Supabase 認証時の既存処理は維持する
+
+3) 実施内容
+- 原因を、暫定ログインはローカル完結だが打刻処理は Supabase 依存のままだった点と特定
+- Web 側の認証ストアに mock ログイン判定を追加し、打刻画面で localStorage を使う mock 保存経路を実装
+- mobile 側の認証プロバイダに mock ログイン判定を追加し、打刻画面で AsyncStorage を使う mock 保存経路を実装
+
+4) 変更ファイル
+- src/store/authStore.ts
+- src/pages/TimeTracking.tsx
+- mobile/src/auth/AuthProvider.tsx
+- mobile/src/screens/TimeTrackingScreen.tsx
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `npm run build:vite` 成功
+- mobile 側 `npx tsc --noEmit` 成功
+
+6) 未対応/次対応
+- ダッシュボード月次集計は mock ログイン時に Supabase 集計へ依存したままのため、必要なら同様の mock 集計対応を追加する
+
+----------------------------------------
+
+日付: 2026-05-22
+依頼者: ユーザー
+テーマ: React Native によるネイティブアプリ追加
+
+1) 依頼内容
+- この勤怠システムをスマホアプリとして配布・運用したいため、React Native でネイティブアプリ化したい
+- アプリはこのリポジトリ内の `mobile/` として追加したい
+
+2) 要件整理
+- `mobile/` 配下に iOS / Android 向け React Native アプリを追加する
+- 既存 Supabase と暫定ログイン（admin/password）を利用できるようにする
+- ログイン、ダッシュボード、打刻、休暇、集計、CSV 出力など主要導線をアプリで扱えるようにする
+- ネイティブ配布前提でバンドル確認まで行う
+
+3) 実施内容
+- Expo ベースの React Native アプリを `mobile/` に新規追加
+- 認証プロバイダ、Supabase クライアント、ボトムタブ + スタックナビゲーションを実装
+- ログイン、ダッシュボード、打刻、休暇、シフト、勤怠集計、CSV 出力、従業員管理、メニュー画面を追加
+- `mobile/.env.example` を追加し、アプリ側の Supabase 接続設定を用意
+- Hermes 互換のため Supabase は CJS ビルド参照へ調整
+
+4) 変更ファイル
+- mobile/App.tsx
+- mobile/app.json
+- mobile/package.json
+- mobile/.gitignore
+- mobile/.env.example
+- mobile/src/auth/AuthProvider.tsx
+- mobile/src/lib/supabase.ts
+- mobile/src/components/*
+- mobile/src/navigation/AppNavigator.tsx
+- mobile/src/screens/*
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `cd mobile && npx tsc --noEmit` 成功
+- `cd mobile && npx expo export --platform ios` 成功
+- `cd mobile && npx expo export --platform android` 成功
+
+6) 未対応/次対応
+- 実機でのログイン、打刻、CSV 共有の操作確認を行う
+- App Store / Google Play 配布向けの署名設定、EAS Build 設定は次タスクで追加する
+
+----------------------------------------
+
+日付: 2026-05-22
+依頼者: ユーザー
+テーマ: 現行勤怠システムのモバイル対応
+
+1) 依頼内容
+- 現行の勤怠システムを、まずはモバイル画面でも使いやすくしたい
+
+2) 要件整理
+- 共通レイアウトをスマートフォン幅で扱いやすくする
+- 主要画面のカード、フォーム、一覧をモバイル向けに調整する
+- 情報量の多い表はモバイル向け表示または横スクロール導線を用意する
+
+3) 実施内容
+- 共通レイアウトにモバイル用メニュー開閉、オーバーレイ、ヘッダー調整を追加
+- ログイン、ダッシュボード、打刻画面の余白、段組み、ボタン配置を調整
+- 休暇管理、勤怠集計、従業員管理、CSV プレビューにモバイル向けカード表示を追加
+- シフト管理にモバイル向け横スクロール導線を追加
+
+4) 変更ファイル
+- src/components/layout/Layout.tsx
+- src/components/layout/Sidebar.tsx
+- src/components/layout/Header.tsx
+- src/pages/Login.tsx
+- src/pages/Dashboard.tsx
+- src/pages/TimeTracking.tsx
+- src/pages/ShiftManagement.tsx
+- src/pages/LeaveManagement.tsx
+- src/pages/AttendanceSummary.tsx
+- src/pages/EmployeeManagement.tsx
+- src/pages/Reports.tsx
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- `npm run build:vite` 成功
+
+6) 未対応/次対応
+- 実機またはブラウザのデバイスモードで最終的な操作確認を行う
+
+----------------------------------------
+
+日付: 2026-05-22
+依頼者: ユーザー
+テーマ: 人事給与システムの別リポジトリ化とモバイル対応要件の整理
+
+1) 依頼内容
+- 人事給与システムのパッケージ化は、この勤怠システムとは別に作成したい
+- モバイル対応も行いたい
+
+2) 要件整理
+- 人事給与システムは本リポジトリと別リポジトリで管理する
+- 勤怠システムとは連携前提で責務を分離する
+- モバイル対応は iOS / Android のネイティブアプリ前提で整理する
+- 今回は要件書と計画書の更新まで行う
+
+3) 実施内容
+- `docs/ai/給与パッケージ化要件.md` を別リポジトリ連携前提の人事給与システム要件へ更新
+- 勤怠システムと人事給与システムの責務境界、連携方針、モバイル要件を追記
+- `docs/ai/plan.md` の次期実装を別リポジトリ + ネイティブモバイル前提へ更新
+- `copilot-instructions.md` と `.github/copilot-instructions.md` に構成方針の参照を追記
+
+4) 変更ファイル
+- docs/ai/給与パッケージ化要件.md
+- docs/ai/plan.md
+- copilot-instructions.md
+- .github/copilot-instructions.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- 要件書、計画書、Copilot 指示書の更新完了
+
+6) 未対応/次対応
+- 別リポジトリの初期構成、API 仕様、モバイルアプリ技術選定は次タスクで具体化する
+
+----------------------------------------
+
+日付: 2026-05-22
+依頼者: ユーザー
+テーマ: Copilot読み取り用指示書の作成
+
+1) 依頼内容
+- docs にある AI の指示書を読み、Copilot で読み取れる `copilot-instructions.md` を作成する
+
+2) 要件整理
+- docs/ai 配下の既存指示書を読み取り、共通ルールを抽出する
+- GitHub Copilot が参照する標準配置で指示書を新規作成する
+- plan.md と履歴の運用ルールに沿って記録を残す
+
+3) 実施内容
+- `docs/ai/指示書.txt`、`docs/ai/copilot指示書.md`、`docs/ai/AI実装運用.md` を確認
+- `.github/copilot-instructions.md` を新規作成し、作業手順・実装ルール・検証/履歴更新ルールを整理
+- リポジトリ直下にも `copilot-instructions.md` を追加し、同内容を参照しやすく配置
+- `copilot-instructions.md` と `.github/copilot-instructions.md` を日本語表記へ更新
+- `docs/ai/plan.md` に今回タスクの要件、受け入れ条件、影響範囲、実装タスクを追記
+
+4) 変更ファイル
+- copilot-instructions.md
+- .github/copilot-instructions.md
+- docs/ai/plan.md
+- docs/history/チャット履歴.txt
+
+5) 動作確認結果
+- Copilot 用指示書の作成と関連ドキュメント更新を完了
+
+6) 未対応/次対応
+- 実装依頼時は `.github/copilot-instructions.md` と `docs/ai/plan.md` を併用して運用する
+
+----------------------------------------
+
 日付: 2026-05-21
 依頼者: ユーザー
 テーマ: React + Electron で就業管理システムの雛形作成

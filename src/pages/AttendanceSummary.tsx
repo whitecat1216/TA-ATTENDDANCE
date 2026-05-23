@@ -42,7 +42,7 @@ export default function AttendanceSummaryPage() {
   return (
     <div className="space-y-4">
       {/* 月選択 */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <select
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
@@ -64,7 +64,33 @@ export default function AttendanceSummaryPage() {
       </div>
 
       {/* 集計テーブル */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-lg border border-gray-200 px-4 py-8 text-center text-gray-400 text-xs">読み込み中...</div>
+        ) : rows.length === 0 ? (
+          <div className="bg-white rounded-lg border border-gray-200 px-4 py-8 text-center text-gray-400 text-xs">データがありません</div>
+        ) : (
+          rows.map((r) => (
+            <div key={`${r.employee_id}-${r.year}-${r.month}`} className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+              <div>
+                <div className="text-xs text-gray-500">{r.department}</div>
+                <div className="font-semibold text-gray-800">{r.employee_name}</div>
+              </div>
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div><dt className="text-gray-500">出勤</dt><dd className="font-medium">{r.work_days}</dd></div>
+                <div><dt className="text-gray-500">欠勤</dt><dd className={r.absent_days > 0 ? 'font-medium text-red-500' : 'font-medium'}>{r.absent_days}</dd></div>
+                <div><dt className="text-gray-500">遅刻</dt><dd className={r.late_count > 0 ? 'font-medium text-yellow-600' : 'font-medium'}>{r.late_count}</dd></div>
+                <div><dt className="text-gray-500">早退</dt><dd className={r.early_leave_count > 0 ? 'font-medium text-yellow-600' : 'font-medium'}>{r.early_leave_count}</dd></div>
+                <div><dt className="text-gray-500">総労働</dt><dd className="font-medium">{fmtHours(r.total_work_minutes)}</dd></div>
+                <div><dt className="text-gray-500">残業</dt><dd className={r.total_overtime_minutes > 0 ? 'font-medium text-orange-500' : 'font-medium'}>{fmtHours(r.total_overtime_minutes)}</dd></div>
+                <div className="col-span-2"><dt className="text-gray-500">休日労働</dt><dd className="font-medium">{fmtHours(r.total_holiday_work_minutes)}</dd></div>
+              </dl>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden md:block bg-white rounded-lg border border-gray-200 overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-xs text-gray-500 border-b border-gray-200">
             <tr>

@@ -4,7 +4,7 @@ import type { AuthUser } from '@/types'
 
 const MOCK_USERNAME = 'admin'
 const MOCK_PASSWORD = 'password'
-const MOCK_USER_STORAGE_KEY = 'ta_mock_auth_user'
+export const MOCK_USER_STORAGE_KEY = 'ta_mock_auth_user'
 
 const createMockAdminUser = (): AuthUser => ({
   id: 'mock-admin-id',
@@ -40,6 +40,7 @@ const getUserFromSession = async (): Promise<AuthUser | null> => {
 
 interface AuthState {
   user: AuthUser | null
+  isMockUser: boolean
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -48,6 +49,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  isMockUser: false,
   loading: true,
 
   fetchSession: async () => {
@@ -55,21 +57,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const mockAuth = localStorage.getItem(MOCK_USER_STORAGE_KEY)
       if (mockAuth) {
-        set({ user: createMockAdminUser(), loading: false })
+        set({ user: createMockAdminUser(), isMockUser: true, loading: false })
         return
       }
 
       const user = await getUserFromSession()
-      set({ user, loading: false })
+      set({ user, isMockUser: false, loading: false })
     } catch {
-      set({ user: null, loading: false })
+      set({ user: null, isMockUser: false, loading: false })
     }
   },
 
   login: async (identifier, password) => {
     if (identifier === MOCK_USERNAME && password === MOCK_PASSWORD) {
       localStorage.setItem(MOCK_USER_STORAGE_KEY, '1')
-      set({ user: createMockAdminUser() })
+      set({ user: createMockAdminUser(), isMockUser: true })
       return
     }
 
@@ -81,12 +83,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       throw new Error('ログインユーザーの従業員情報が見つかりません。employees テーブルを確認してください。')
     }
 
-    set({ user })
+    set({ user, isMockUser: false })
   },
 
   logout: async () => {
     localStorage.removeItem(MOCK_USER_STORAGE_KEY)
     await supabase.auth.signOut()
-    set({ user: null })
+    set({ user: null, isMockUser: false })
   },
 }))

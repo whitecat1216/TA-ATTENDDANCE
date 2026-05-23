@@ -12,7 +12,7 @@ interface StatCard {
 
 function StatCard({ label, value, sub, color = 'bg-white' }: StatCard) {
   return (
-    <div className={`${color} rounded-lg shadow-sm border border-gray-200 p-5`}>
+    <div className={`${color} rounded-lg shadow-sm border border-gray-200 p-4 sm:p-5`}>
       <div className="text-xs text-gray-500 mb-1">{label}</div>
       <div className="text-2xl font-bold text-gray-800">{value}</div>
       {sub && <div className="text-xs text-gray-400 mt-1">{sub}</div>}
@@ -53,7 +53,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-base text-gray-500">
+        <h2 className="text-sm sm:text-base text-gray-500">
           {year}年{month}月 — {user?.employee.name} さんの勤怠状況
         </h2>
       </div>
@@ -61,7 +61,7 @@ export default function Dashboard() {
       {loading ? (
         <p className="text-gray-400 text-sm">読み込み中...</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4">
           <StatCard label="出勤日数"        value={`${summary?.work_days ?? 0}日`} />
           <StatCard label="欠勤日数"        value={`${summary?.absent_days ?? 0}日`} color="bg-red-50" />
           <StatCard label="遅刻回数"        value={`${summary?.late_count ?? 0}回`} color="bg-yellow-50" />
@@ -72,7 +72,7 @@ export default function Dashboard() {
       )}
 
       {/* お知らせエリア（将来的に通知を表示） */}
-      <div className="bg-white rounded-lg border border-gray-200 p-5">
+      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-5">
         <h3 className="font-semibold text-gray-700 mb-3 text-sm">お知らせ</h3>
         <p className="text-gray-400 text-sm">現在お知らせはありません。</p>
       </div>

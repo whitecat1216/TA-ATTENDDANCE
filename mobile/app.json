@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "TA Attendance Mobile",
+    "slug": "ta-attendance-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "taattendance",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "jp.co.taattendance.mobile"
+    },
+    "android": {
+      "package": "jp.co.taattendance.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sharing"
+    ]
+  }
+}

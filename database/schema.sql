@@ -2,6 +2,8 @@
 -- 就業管理システム TA スキーマ
 -- Supabase (PostgreSQL) 用
 -- ============================
+-- 注意: Supabase CLI 運用では `supabase/migrations/20260522100000_initial_schema.sql`
+-- を正本として扱ってください。このファイルは移行前互換の参照用です。
 
 -- 部門
 create table if not exists departments (
